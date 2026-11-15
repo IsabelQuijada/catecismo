@@ -1,0 +1,7 @@
+import { StyleSheet, Text, View } from 'react-native';
+import { StandardPage } from '../components/page';
+import { semantic, tokens } from '../design/tokens';
+import { sacramentPaths } from '../content/repository';
+
+export default function SacramentsScreen() { return <StandardPage eyebrow="Camino de fe" title="Sacramentos" body="Conoce el acompañamiento para vivir plenamente los sacramentos de iniciación cristiana."><View style={styles.grid}>{sacramentPaths.map((path) => <View key={path.id} style={styles.card}><Text style={styles.icon}>✦</Text><Text style={styles.title}>{path.title}</Text><Text style={styles.body}>{path.description}</Text><Text style={styles.note}>{path.note}</Text></View>)}</View></StandardPage>; }
+const styles = StyleSheet.create({ grid: { flexDirection: tokens.layout.row, flexWrap: tokens.layout.wrap, gap: tokens.space.lg, paddingBottom: tokens.space.hero }, card: { flex: tokens.layout.fill, minWidth: tokens.size.cardImage, padding: tokens.space.lg, backgroundColor: semantic.surface.base, borderRadius: tokens.radius.lg, ...tokens.shadow.card }, icon: { fontSize: tokens.size.iconLg, color: tokens.color.gold, marginBottom: tokens.space.md }, title: { ...tokens.type.title, color: semantic.screen.text, marginBottom: tokens.space.xs }, body: { ...tokens.type.body, color: semantic.screen.mutedText, marginBottom: tokens.space.lg }, note: { ...tokens.type.label, color: tokens.color.wine } });

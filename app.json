@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "site",
-    "slug": "site",
+    "name": "Catequesis Cocula Jalisco",
+    "slug": "catequesis-cocula-jalisco",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/content/branding/logo-catequesis-cocula.png",
     "userInterfaceStyle": "light",
+    "scheme": "catequesis-cocula",
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +20,13 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/content/branding/favicon-catequesis-cocula-optimized.png",
+      "name": "Catequesis Cocula",
+      "shortName": "Catequesis",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
