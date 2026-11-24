@@ -32,12 +32,23 @@ export function SelectedAnnouncement({ notice }: SelectedAnnouncementProps) {
   const [actionFocused, setActionFocused] = useState(false);
   if (!notice) return null;
 
+  if (isCompact) return <View style={styles.announcementRibbon}>
+    <View style={styles.announcementRibbonRow}>
+      <Image source={announcementIllustration} style={styles.announcementRibbonImage} resizeMode="contain" accessibilityIgnoresInvertColors accessibilityLabel="Ilustración de una Biblia infantil, una paloma y ramas de olivo" />
+      <View style={styles.announcementRibbonCopy}>
+        <Text style={styles.announcementRibbonEyebrow}>{(notice.eyebrow ?? 'Comunicado').toUpperCase()}</Text>
+        <Text style={styles.announcementRibbonTitle}>{notice.title}</Text>
+      </View>
+    </View>
+    {notice.action ? <Link href={notice.action.href as never} asChild><Pressable accessibilityRole="link" style={styles.announcementRibbonAction}><Text style={styles.noticeFeatureLink}>{notice.action.label} →</Text></Pressable></Link> : null}
+  </View>;
+
   return <View style={styles.watercolorAnnouncementBanner}>
-    <View style={[styles.watercolorAnnouncementContent, isCompact && styles.watercolorAnnouncementContentCompact]}>
-      <View style={[styles.noticeIllustration, !isWide ? styles.noticeIllustrationTablet : undefined, isCompact && styles.noticeIllustrationCompact]}>
+    <View style={styles.watercolorAnnouncementContent}>
+      <View style={[styles.noticeIllustration, !isWide ? styles.noticeIllustrationTablet : undefined]}>
         <Image source={announcementIllustration} style={[styles.noticeIllustrationImage, !isWide ? styles.noticeIllustrationImageTablet : undefined]} resizeMode="contain" accessibilityLabel="Ilustración de una Biblia infantil, una paloma y ramas de olivo" />
       </View>
-      <View style={[styles.noticeFeatureCopy, isCompact && styles.noticeFeatureCopyCompact]}>
+      <View style={styles.noticeFeatureCopy}>
         <Text style={styles.noticeFeatureTitle}>{notice.title}</Text>
         <Text style={styles.noticeFeatureBody}>{notice.summary}</Text>
         {notice.action ? <Link href={notice.action.href as never} asChild><Pressable accessibilityRole="link" onHoverIn={() => setActionHovered(true)} onHoverOut={() => setActionHovered(false)} onFocus={() => setActionFocused(true)} onBlur={() => setActionFocused(false)} style={styles.noticeFeatureAction}><Text style={[styles.noticeFeatureLink, (actionHovered || actionFocused) && styles.noticeFeatureLinkHighlighted, actionFocused && styles.noticeFeatureLinkFocused]}>{notice.action.label} <Text accessibilityElementsHidden>→</Text></Text></Pressable></Link> : null}
@@ -62,10 +73,15 @@ const styles = StyleSheet.create({
   noticeSuccess: { backgroundColor: tokens.color.sage }, noticeSuccessAccent: { borderLeftColor: tokens.color.gold }, noticeSuccessKicker: { color: tokens.color.goldSoft },
   noticeKicker: { ...tokens.type.eyebrow, marginBottom: tokens.space.xs }, noticeTextDark: { color: semantic.notice.text }, noticeTextLight: { color: semantic.action.onAction },
   noticeContent: { flexDirection: tokens.layout.row, justifyContent: tokens.layout.between, gap: tokens.space.md, alignItems: tokens.layout.center }, noticeContentCompact: { flexDirection: tokens.layout.column, alignItems: tokens.layout.start }, noticeCopy: { flex: tokens.layout.fill }, noticeTitle: { ...tokens.type.title }, noticeBody: { ...tokens.type.body, marginTop: tokens.space.xs }, noticeExpiry: { ...tokens.type.label, marginTop: tokens.space.sm },
-  watercolorAnnouncementBanner: { width: tokens.layout.full, minHeight: 150, marginVertical: tokens.space.none, overflow: 'hidden', justifyContent: tokens.layout.center, backgroundColor: semantic.surface.base },
+  watercolorAnnouncementBanner: { width: tokens.layout.full, minHeight: 150, marginVertical: tokens.space.none, overflow: 'hidden', justifyContent: tokens.layout.center, backgroundColor: tokens.color.cream },
   watercolorAnnouncementContent: { width: tokens.layout.full, maxWidth: tokens.size.announcementContent, alignSelf: tokens.layout.center, paddingHorizontal: tokens.space.lg, paddingVertical: tokens.space.xxs, flexDirection: tokens.layout.row, alignItems: tokens.layout.center, justifyContent: tokens.layout.center, gap: tokens.space.xl },
-  watercolorAnnouncementContentCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: tokens.space.sm, paddingVertical: tokens.space.lg },
-  noticeIllustrationCompact: { alignSelf: 'center' }, noticeFeatureCopyCompact: { flexBasis: 'auto', width: '100%' },
+  announcementRibbon: { backgroundColor: tokens.color.cream, paddingHorizontal: tokens.space.lg, paddingVertical: tokens.space.md },
+  announcementRibbonRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.space.md },
+  announcementRibbonImage: { width: 76, height: 76 },
+  announcementRibbonCopy: { flex: 1 },
+  announcementRibbonEyebrow: { ...tokens.type.eyebrow, color: tokens.color.wine, marginBottom: tokens.space.xxs },
+  announcementRibbonTitle: { fontSize: 18, lineHeight: 24, fontWeight: '700', color: semantic.screen.text },
+  announcementRibbonAction: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   noticeIllustration: { width: 180, alignItems: tokens.layout.center, justifyContent: tokens.layout.center },
   noticeIllustrationTablet: { width: 125 },
   noticeIllustrationImage: { width: 122, height: 122 },

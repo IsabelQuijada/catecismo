@@ -1,33 +1,42 @@
-import { Image, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocalSearchParams } from 'expo-router';
+import { Image, Pressable, ScrollView, ScrollViewInstance, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { contentRepository } from '../content/repository';
 import { semantic, tokens } from '../design/tokens';
-import { CourseCard, SelectedAnnouncement } from '../components/content';
+import { SelectedAnnouncement } from '../components/content';
+import { ParishMessage } from '../components/parish-message';
 import { ActivityAnnouncements } from '../components/activity-announcements';
 import { SacramentEntries } from '../components/sacraments';
-import { AppButton, Container, EmptyState, Section, SiteFooter, SiteHeader } from '../components/ui';
+import { Container, Section, SiteFooter, SiteHeader } from '../components/ui';
 
 const heroImage = require('../../assets/content/hero/hero-image-parroquia1.png');
 
 export default function HomeScreen() {
+  const { seccion } = useLocalSearchParams<{ seccion?: string }>();
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const [announcementsY, setAnnouncementsY] = useState<number>();
+  useEffect(() => {
+    if (seccion === 'avisos' && announcementsY !== undefined) {
+      scrollRef.current?.scrollTo({ y: announcementsY, animated: false });
+    }
+  }, [seccion, announcementsY]);
   const compact = useWindowDimensions().width < tokens.breakpoint.compact;
   const urgent = contentRepository.getActiveAnnouncement();
-  const openCourses = contentRepository.getOpenCourses();
 
   return <View style={styles.screen}>
     <SiteHeader />
-    <ScrollView contentContainerStyle={styles.scrollContent}>
+    <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent}>
       <View style={[styles.hero, compact && styles.heroCompact]}>
         <Container style={styles.heroContainer}>
           <View style={[styles.heroGrid, compact && styles.heroGridCompact]}>
             <View style={[styles.heroCopy, compact && styles.heroCopyCompact]}>
-              <Text style={styles.heroEyebrow}>CATEQUESIS INFANTIL · COCULA, JALISCO</Text>
+              <Text style={[styles.heroEyebrow, compact && styles.heroEyebrowCompact]}>{compact ? 'CATEQUESIS INFANTIL · COCULA' : 'CATEQUESIS INFANTIL · COCULA, JALISCO'}</Text>
               <Text style={[styles.heroTitle, compact && styles.heroTitleCompact]}>
                 Pequeños corazones,{`\n`}grandes caminos de fe.
               </Text>
               <Text style={styles.heroBody}>Un lugar para conocer a Jesús, hacer amigos y crecer juntos en el amor de Dios.</Text>
               <View style={styles.actions}>
-                <AppButton label="Ver avisos" href="/avisos" />
-                <AppButton label="Conoce los sacramentos" href="/sacramentos" variant="secondary" />
+                <Link href="/avisos" asChild><Pressable style={styles.heroPrimaryButton}><Text style={styles.heroPrimaryLabel}>Ver avisos  →</Text></Pressable></Link>
               </View>
             </View>
             <View style={[styles.heroArt, compact && styles.heroArtCompact]}>
@@ -38,22 +47,17 @@ export default function HomeScreen() {
       </View>
 
       <SelectedAnnouncement notice={urgent} />
-      <ActivityAnnouncements announcements={contentRepository.getActiveCommunityAnnouncements()} />
+      <View onLayout={(event) => setAnnouncementsY(event.nativeEvent.layout.y)}>
+        <ActivityAnnouncements announcements={contentRepository.getActiveCommunityAnnouncements()} />
+      </View>
 
       <Section eyebrow="Caminos de fe" title="Te acompañamos en cada paso">
         <Text style={styles.sacramentDescription}>Descubre los sacramentos y cómo prepararte para recibirlos.</Text>
         <SacramentEntries />
       </Section>
 
-      <Section eyebrow="Formación" title="Cursos disponibles" tone="warm">
-        {openCourses.length ? <View style={styles.cardGrid}>{openCourses.map((course) => <CourseCard key={course.id} course={course} />)}</View> : <EmptyState title="Inscripciones por anunciar" body="Cuando inicien nuevas inscripciones, encontrarás aquí todos los requisitos." />}
-        <View style={styles.sectionAction}><AppButton label="Encuentra tu centro y horario" href="/centros" variant="secondary" /></View>
-      </Section>
+      <ParishMessage />
 
-      <Section eyebrow="Nuestra comunidad" title="Caminamos juntos en la fe">
-        <Text style={styles.aboutDescription}>Acompañamos a las niñas, los niños y sus familias en un camino de fe, encuentro y comunidad.</Text>
-        <View style={styles.sectionAction}><AppButton label="Conoce nuestra comunidad" href="/nosotros" variant="secondary" /></View>
-      </Section>
       <SiteFooter />
     </ScrollView>
   </View>;
@@ -66,7 +70,10 @@ const styles = StyleSheet.create({
   heroCompact: { paddingVertical: tokens.space.xl },
   heroGridCompact: { flexDirection: 'column', alignItems: 'stretch', gap: tokens.space.lg },
   heroCopyCompact: { width: '100%' }, heroTitleCompact: { fontSize: 36, lineHeight: 43 },
-  heroArtCompact: { width: '100%', maxWidth: 480, alignSelf: 'center' },
+  heroArtCompact: { width: '100%', maxWidth: 480, alignSelf: 'center', borderRadius: tokens.radius.lg },
+  heroEyebrowCompact: { fontSize: 11, lineHeight: 16, marginBottom: tokens.space.sm },
+  heroPrimaryButton: { minHeight: 48, paddingHorizontal: 20, borderRadius: tokens.radius.pill, backgroundColor: tokens.color.goldSoft, justifyContent: 'center' },
+  heroPrimaryLabel: { ...tokens.type.label, color: tokens.color.navyDeep },
   heroContainer: { maxWidth: tokens.size.heroContent },
   heroGrid: { flexDirection: tokens.layout.row, alignItems: tokens.layout.center, justifyContent: tokens.layout.between, gap: tokens.space.xxl },
   heroCopy: { width: tokens.size.heroText },
@@ -84,5 +91,4 @@ const styles = StyleSheet.create({
   pathBody: { ...tokens.type.body, color: semantic.screen.mutedText },
   sacramentDescription: { ...tokens.type.body, color: semantic.screen.mutedText, marginTop: -24, marginBottom: tokens.space.sm },
   sectionAction: { marginTop: tokens.space.lg },
-  aboutDescription: { ...tokens.type.body, color: semantic.screen.mutedText, maxWidth: 650 },
 });

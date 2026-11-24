@@ -25,6 +25,9 @@ export type CommunityAnnouncement = {
   eventTime?: string;
   location?: string;
   audience?: string;
+  details?: string;
+  whatToBring?: string[];
+  quote?: string;
   imageKey?: 'advent' | 'sacraments' | 'books' | 'guadalupe' | 'nativity';
   poster?: string;
   visibleFrom?: string;

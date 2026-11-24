@@ -25,6 +25,9 @@
       "shortName": "Catequesis",
       "output": "static"
     },
+    "experiments": {
+      "baseUrl": "/catecismo"
+    },
     "plugins": [
       "expo-router"
     ]

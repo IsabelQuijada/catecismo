@@ -42,6 +42,7 @@ export function SiteHeader() {
   const { width } = useWindowDimensions();
   const pathname = usePathname();
   const mobile = width < 960;
+  const phone = width < 768;
   const [menuOpen, setMenuOpen] = useState(false);
   const [sacramentsOpen, setSacramentsOpen] = useState(false);
   useEffect(() => {
@@ -54,17 +55,17 @@ export function SiteHeader() {
   const closeMenus = () => { setMenuOpen(false); setSacramentsOpen(false); };
   const navigation = <View style={[styles.nav, mobile && styles.navMobile]} accessibilityRole="navigation" accessibilityLabel="Navegación principal">
     <View nativeID="sacrament-menu" style={styles.dropdownContainer}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Sacramentos" accessibilityState={{ expanded: sacramentsOpen }} onPress={() => setSacramentsOpen((value) => !value)} style={[styles.navLink, pathname.startsWith('/sacramentos') && styles.navLinkActive]}><Text style={styles.navLinkText}>Sacramentos</Text></Pressable>
-      {sacramentsOpen ? <View style={[styles.dropdown, mobile && styles.dropdownMobile]}>{[{ href: '/sacramentos/bautismo', label: 'Bautismo' }, { href: '/sacramentos/primera-comunion', label: 'Primera Comunión' }, { href: '/sacramentos/confirmacion', label: 'Confirmación' }].map((item) => <Link key={item.href} href={item.href as never} asChild><Pressable accessibilityRole="link" onPress={closeMenus} style={styles.dropdownLink}><Text style={styles.navLinkText}>{item.label}</Text></Pressable></Link>)}</View> : null}
+      <Pressable accessibilityRole="button" accessibilityLabel="Sacramentos" accessibilityState={{ expanded: sacramentsOpen }} onPress={() => setSacramentsOpen((value) => !value)} style={[styles.navLink, pathname.startsWith('/sacramentos') && styles.navLinkActive, phone && styles.sacramentToggleMobile]}><Text style={styles.navLinkText}>Sacramentos</Text>{phone && <Text style={styles.sacramentChevron} accessibilityElementsHidden>{sacramentsOpen ? '⌃' : '⌄'}</Text>}</Pressable>
+      {sacramentsOpen ? <View style={[styles.dropdown, mobile && styles.dropdownMobile, phone && styles.sacramentDropdownPhone]}>{[{ href: '/sacramentos/bautismo', label: 'Bautismo' }, { href: '/sacramentos/primera-comunion', label: 'Primera Comunión' }, { href: '/sacramentos/confirmacion', label: 'Confirmación' }].map((item) => <Link key={item.href} href={item.href as never} asChild><Pressable accessibilityRole="link" onPress={closeMenus} style={StyleSheet.flatten([styles.dropdownLink, phone && styles.sacramentLinkPhone])}><Text style={styles.navLinkText}>{item.label}</Text></Pressable></Link>)}</View> : null}
     </View>
     {navigationItems.map((item) => <Link key={item.href} href={item.href} asChild><Pressable onPress={closeMenus} style={StyleSheet.flatten([styles.navLink, pathname === item.href && styles.navLinkActive])}><Text style={styles.navLinkText}>{item.label}</Text></Pressable></Link>)}
     <Link href="/contacto" asChild><Pressable onPress={closeMenus} style={styles.navAction}><Text style={styles.navActionText}>Contactar</Text></Pressable></Link>
   </View>;
   return <View style={{ zIndex: 10 }}>
-    <Link href="/avisos" asChild><Pressable style={styles.ribbon}><Container style={styles.ribbonInner}><View style={styles.ribbonContent}><Text style={styles.ribbonText}>Inscripciones abiertas para catequesis 2026</Text><Text style={styles.ribbonAction}>Consulta requisitos y horarios →</Text></View></Container></Pressable></Link>
+    <Link href="/contacto" asChild><Pressable style={styles.ribbon}><Container style={styles.ribbonInner}><View style={styles.ribbonContent}>{mobile ? <Text style={[styles.ribbonText, styles.ribbonTextMobile]}>Inscripciones 2026 abiertas →</Text> : <><Text style={styles.ribbonText}>Inscripciones abiertas para catequesis 2026</Text><Text style={styles.ribbonAction}>Consulta requisitos y horarios →</Text></>}</View></Container></Pressable></Link>
     <View style={styles.header}><Container style={StyleSheet.flatten([styles.headerInner, mobile && styles.headerInnerMobile]) ?? undefined}>
-      <Link href="/" asChild><Pressable onPress={closeMenus} style={StyleSheet.flatten([styles.brand, mobile && styles.brandMobile])}><View style={[styles.brandMark, mobile && styles.brandMarkMobile]}><Image source={logoImage} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Logotipo de Catequesis Infantil Cocula" /></View><View style={styles.brandCopy}><Text style={[styles.brandName, mobile && styles.brandNameMobile]} numberOfLines={1}>Catequesis Infantil</Text><Text style={[styles.brandPlace, mobile && styles.brandPlaceMobile]}>Cocula, Jalisco</Text></View></Pressable></Link>
-      {mobile ? <Pressable accessibilityRole="button" accessibilityState={{ expanded: menuOpen }} accessibilityLabel={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onPress={() => setMenuOpen(!menuOpen)} style={styles.menuButton}><Text style={styles.navLinkText}>{menuOpen ? 'Cerrar' : 'Menú'} {menuOpen ? '×' : '☰'}</Text></Pressable> : navigation}
+      <Link href="/" asChild><Pressable onPress={closeMenus} style={StyleSheet.flatten([styles.brand, mobile && styles.brandMobile])}><View style={[styles.brandMark, mobile && styles.brandMarkMobile]}><Image source={logoImage} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Logotipo de Catequesis Infantil Cocula" /></View><View style={styles.brandCopy}><Text style={[styles.brandName, mobile && styles.brandNameMobile]} numberOfLines={1}>{mobile ? 'Catequesis Cocula' : 'Catequesis Infantil'}</Text>{!mobile ? <Text style={styles.brandPlace}>Cocula, Jalisco</Text> : null}</View></Pressable></Link>
+      {mobile ? <Pressable accessibilityRole="button" accessibilityState={{ expanded: menuOpen }} accessibilityLabel={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onPress={() => setMenuOpen(!menuOpen)} style={styles.menuButton}><Text style={styles.menuIcon}>{menuOpen ? '×' : '☰'}</Text></Pressable> : navigation}
     </Container>{mobile && menuOpen ? <Container>{navigation}</Container> : null}</View>
   </View>;
 }
@@ -72,36 +73,36 @@ export function SiteHeader() {
 export function SiteFooter() {
   const { width } = useWindowDimensions();
   const compact = width < tokens.breakpoint.compact;
+  const mobile = width < 768;
   const footerLinks = [
     { href: '/sacramentos', label: 'Sacramentos' },
     ...navigationItems,
     { href: '/contacto', label: 'Contacto' },
   ] as const;
 
-  return <View style={styles.footer}><Container>
-    <View style={[styles.footerColumns, compact && styles.footerColumnsCompact]}>
-      <View style={styles.footerIntro}>
-        <View style={styles.footerBrand}>
-          <Image source={logoImage} style={styles.footerLogo} resizeMode="contain" accessibilityLabel="Logotipo de Catequesis Infantil Cocula" />
+  return <View style={[styles.footer, mobile && styles.footerMobile]}><Container>
+    <View style={[styles.footerColumns, compact && styles.footerColumnsCompact, mobile && styles.footerColumnsMobile]}>
+      <View style={[styles.footerIntro, mobile && styles.footerColumnMobile]}>
+        <View style={[styles.footerBrand, mobile && styles.footerBrandMobile]}>
+          <Image source={logoImage} style={[styles.footerLogo, mobile && styles.footerLogoMobile]} resizeMode="contain" accessibilityLabel="Logotipo de Catequesis Infantil Cocula" />
           <View style={styles.footerBrandText}><Text style={styles.footerTitle}>Catequesis Infantil</Text><Text style={styles.footerPlace}>Cocula, Jalisco</Text></View>
         </View>
-        <Text style={styles.footerDescription}>Acompañando a nuestras niñas y niños en su camino de fe.</Text>
-        <View style={styles.footerAccent} />
+        {!mobile && <><Text style={styles.footerDescription}>Acompañando a nuestras niñas y niños en su camino de fe.</Text><View style={styles.footerAccent} /></>}
       </View>
-      <View style={styles.footerNavigation} accessibilityRole="navigation" accessibilityLabel="Navegación del pie de página">
+      <View style={[styles.footerNavigation, mobile && styles.footerColumnMobile]} accessibilityRole="navigation" accessibilityLabel="Navegación del pie de página">
         <Text style={styles.footerHeading}>EXPLORA</Text>
-        {footerLinks.map((item) => <Link key={item.href} href={item.href} asChild><Pressable accessibilityRole="link" style={styles.footerLink}><Text style={styles.footerLinkText}>{item.label}</Text></Pressable></Link>)}
+        <View style={mobile && styles.footerLinksMobile}>{footerLinks.map((item) => <Link key={item.href} href={item.href} asChild><Pressable accessibilityRole="link" style={StyleSheet.flatten([styles.footerLink, mobile && styles.footerLinkMobile])}><Text style={styles.footerLinkText}>{item.label}</Text></Pressable></Link>)}</View>
       </View>
-      <View style={styles.footerContact}>
+      <View style={[styles.footerContact, mobile && styles.footerColumnMobile]}>
         <Text style={styles.footerHeading}>ESTAMOS PARA TI</Text>
-        <Text style={styles.footerContactLabel}>Visítanos</Text>
-        <Link href="https://www.google.com/maps/search/?api=1&query=16+de+Septiembre+s%2Fn%2C+Centro%2C+48500+Cocula%2C+Jalisco%2C+Mexico" asChild><Pressable accessibilityRole="link" accessibilityLabel="Ver dirección en el mapa" style={styles.footerContactLink}><Text style={styles.footerLinkText}>16 de Septiembre s/n, Centro,{"\n"}48500 Cocula, Jal., México</Text></Pressable></Link>
-        <Text style={styles.footerContactLabel}>Llámanos</Text>
-        <Link href="tel:+523777734516" asChild><Pressable accessibilityRole="link" style={styles.footerContactLink}><Text style={styles.footerLinkText}>+52 377 773 4516</Text></Pressable></Link>
-        <Link href="https://www.facebook.com/CatequesisCocula/photos" asChild><Pressable accessibilityRole="link" accessibilityLabel="Visitar Facebook de Catequesis Cocula" style={styles.footerSocial}><Text style={styles.footerSocialIcon}>f</Text><Text style={styles.footerSocialText}>Síguenos en Facebook  ↗</Text></Pressable></Link>
+        {!mobile && <Text style={styles.footerContactLabel}>Visítanos</Text>}
+        <Link href="https://www.google.com/maps/search/?api=1&query=16+de+Septiembre+s%2Fn%2C+Centro%2C+48500+Cocula%2C+Jalisco%2C+Mexico" asChild><Pressable accessibilityRole="link" accessibilityLabel="Ver dirección en el mapa" style={StyleSheet.flatten([styles.footerContactLink, mobile && styles.footerContactLinkMobile])}><Text style={[styles.footerLinkText, mobile && styles.footerTextMobile]}>{mobile ? '16 de Septiembre s/n, Centro, Cocula, Jal.' : '16 de Septiembre s/n, Centro,\n48500 Cocula, Jal., México'}</Text></Pressable></Link>
+        {!mobile && <Text style={styles.footerContactLabel}>Llámanos</Text>}
+        <Link href="tel:+523777734516" asChild><Pressable accessibilityRole="link" style={StyleSheet.flatten([styles.footerContactLink, mobile && styles.footerContactLinkMobile])}><Text style={[styles.footerLinkText, mobile && styles.footerTextMobile]}>+52 377 773 4516</Text></Pressable></Link>
+        <Link href="https://www.facebook.com/CatequesisCocula/photos" asChild><Pressable accessibilityRole="link" accessibilityLabel="Visitar Facebook de Catequesis Cocula" style={styles.footerSocial}><Text style={styles.footerSocialIcon}>f</Text><Text style={styles.footerSocialText}>Síguenos en Facebook</Text></Pressable></Link>
       </View>
     </View>
-    <View style={[styles.footerBottom, compact && styles.footerBottomCompact]}><Text style={styles.footerBottomText}>Parroquia San Miguel Arcángel</Text><Text style={styles.footerBottomText}>Cocula, Jalisco · México</Text></View>
+    <View style={[styles.footerBottom, compact && styles.footerBottomCompact, mobile && styles.footerBottomMobile]}><Text style={styles.footerBottomText}>Parroquia San Miguel Arcángel</Text>{!mobile && <Text style={styles.footerBottomText}>Cocula, Jalisco · México</Text>}</View>
   </Container></View>;
 }
 
@@ -109,18 +110,22 @@ const styles = StyleSheet.create({
   container: { width: tokens.layout.full, maxWidth: tokens.size.content, alignSelf: tokens.layout.center, paddingHorizontal: tokens.space.lg },
   ribbon: { backgroundColor: semantic.action.secondary }, ribbonInner: { paddingVertical: tokens.space.xs },
   ribbonContent: { flexDirection: tokens.layout.row, flexWrap: tokens.layout.wrap, alignItems: tokens.layout.center, justifyContent: tokens.layout.center, gap: tokens.space.sm },
-  ribbonText: { ...tokens.type.label, color: semantic.action.onAction, textAlign: 'center' }, ribbonAction: { ...tokens.type.label, color: tokens.color.goldSoft, textAlign: 'center' },
+  ribbonText: { ...tokens.type.label, color: semantic.action.onAction, textAlign: 'center' }, ribbonTextMobile: { fontSize: 14, lineHeight: 20 }, ribbonAction: { ...tokens.type.label, color: tokens.color.goldSoft, textAlign: 'center' },
   header: { backgroundColor: semantic.surface.base, borderBottomWidth: tokens.space.hairline, borderBottomColor: semantic.screen.line },
   headerInner: { minHeight: tokens.size.header, flexDirection: tokens.layout.row, alignItems: tokens.layout.center, justifyContent: tokens.layout.between, flexWrap: tokens.layout.wrap, paddingVertical: tokens.space.xs, gap: tokens.space.md },
   brand: { flexDirection: tokens.layout.row, alignItems: tokens.layout.center, gap: tokens.space.sm, minWidth: 0 },
-  brandMark: { width: tokens.size.brandLogo, height: tokens.size.brandLogo, borderRadius: tokens.radius.md, backgroundColor: semantic.surface.base, overflow: 'hidden' },
+  brandMark: { width: 113, height: 113, flexShrink: 0, borderRadius: tokens.radius.md, backgroundColor: semantic.surface.base, overflow: 'hidden' },
   brandLogo: { width: tokens.layout.full, height: tokens.layout.full }, brandName: { ...tokens.type.brandTitle, color: semantic.screen.text }, brandPlace: { ...tokens.type.brandSubtitle, color: semantic.screen.mutedText },
   nav: { flexDirection: tokens.layout.row, flexWrap: tokens.layout.wrap, alignItems: tokens.layout.center, gap: tokens.space.md }, navLink: { minHeight: tokens.size.button, paddingHorizontal: tokens.space.xs, justifyContent: tokens.layout.center }, navLinkText: { ...tokens.type.bodyStrong, color: semantic.screen.text },
+  sacramentToggleMobile: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 12 },
+  sacramentChevron: { fontSize: 24, color: tokens.color.navy },
+  sacramentDropdownPhone: { padding: 0, marginBottom: 8, overflow: 'hidden' },
+  sacramentLinkPhone: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, minHeight: 48 },
   navLinkActive: { borderBottomWidth: 3, borderBottomColor: tokens.color.wine },
   navAction: { minHeight: tokens.size.button, alignSelf: 'flex-start', justifyContent: tokens.layout.center, backgroundColor: semantic.action.primary, paddingHorizontal: tokens.space.md, borderRadius: tokens.radius.pill }, navActionText: { ...tokens.type.bodyStrong, color: semantic.action.onAction },
   headerInnerMobile: { flexWrap: 'nowrap', gap: tokens.space.xs, minHeight: 64 }, brandMobile: { flex: 1 }, brandCopy: { flexShrink: 1 },
-  brandMarkMobile: { width: 48, height: 48 }, brandNameMobile: { fontSize: 17, lineHeight: 22 }, brandPlaceMobile: { fontSize: 12, lineHeight: 16 },
-  menuButton: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 }, navMobile: { flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingBottom: 16 }, dropdownContainer: { position: 'relative', zIndex: 20 }, dropdown: { position: 'absolute', top: 48, left: 0, width: 210, backgroundColor: tokens.color.white, borderRadius: 12, padding: 8, ...tokens.shadow.card }, dropdownMobile: { position: 'relative', top: 0, width: '100%', shadowOpacity: 0, elevation: 0, backgroundColor: tokens.color.blueSoft }, dropdownLink: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 12 },
+  brandMarkMobile: { width: 56, height: 56 }, brandNameMobile: { fontSize: 17, lineHeight: 22 },
+  menuButton: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' }, menuIcon: { color: semantic.screen.text, fontSize: 25, lineHeight: 30 }, navMobile: { flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingBottom: 16 }, dropdownContainer: { position: 'relative', zIndex: 20 }, dropdown: { position: 'absolute', top: 48, left: 0, width: 210, backgroundColor: tokens.color.white, borderRadius: 12, padding: 8, ...tokens.shadow.card }, dropdownMobile: { position: 'relative', top: 0, width: '100%', shadowOpacity: 0, elevation: 0, backgroundColor: tokens.color.blueSoft }, dropdownLink: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 12 },
   section: { paddingVertical: tokens.space.hero }, sectionCompact: { paddingVertical: tokens.space.xxl }, sectionBase: { backgroundColor: semantic.screen.background }, sectionSoft: { backgroundColor: semantic.surface.subtle }, sectionWarm: { backgroundColor: semantic.surface.warm },
   eyebrow: { ...tokens.type.eyebrow, color: tokens.color.wine, textTransform: 'uppercase', marginBottom: tokens.space.sm }, sectionTitle: { ...tokens.type.title, color: semantic.screen.text, marginBottom: tokens.space.xl },
   button: { minHeight: tokens.size.button, borderRadius: tokens.radius.pill, paddingHorizontal: tokens.space.lg, flexDirection: tokens.layout.row, alignItems: tokens.layout.center, justifyContent: tokens.layout.center, alignSelf: tokens.layout.start, gap: tokens.space.sm },
@@ -131,6 +136,14 @@ const styles = StyleSheet.create({
   pageHeadingCompact: { paddingTop: tokens.space.xxl, paddingBottom: tokens.space.xl }, pageTitleCompact: { fontSize: 36, lineHeight: 42 },
   empty: { backgroundColor: semantic.surface.base, borderRadius: tokens.radius.lg, padding: tokens.space.xxl, alignItems: tokens.layout.center, borderWidth: tokens.space.hairline, borderColor: semantic.screen.line }, emptyIcon: { fontSize: tokens.size.iconLg, color: tokens.color.gold, marginBottom: tokens.space.sm }, emptyTitle: { ...tokens.type.title, color: semantic.screen.text, textAlign: tokens.layout.center }, emptyBody: { ...tokens.type.body, color: semantic.screen.mutedText, textAlign: tokens.layout.center, marginTop: tokens.space.xs },
   footer: { backgroundColor: tokens.color.navyDeep, paddingTop: tokens.space.xxl, paddingBottom: tokens.space.lg, borderTopWidth: 3, borderTopColor: tokens.color.gold },
+  footerMobile: { paddingVertical: 24 },
+  footerColumnsMobile: { flexDirection: 'column', gap: 16, paddingBottom: 16 },
+  footerColumnMobile: { flex: 0, flexBasis: 'auto' },
+  footerBrandMobile: { marginBottom: 0 },
+  footerLogoMobile: { width: 52, height: 52 },
+  footerLinksMobile: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 24 },
+  footerLinkMobile: { minHeight: 44, justifyContent: 'center' },
+  footerContactLinkMobile: { minHeight: 44, justifyContent: 'center', marginBottom: 0 }, footerTextMobile: { fontSize: 14, lineHeight: 21 }, footerBottomMobile: { paddingTop: 16 },
   footerColumns: { flexDirection: 'row', gap: tokens.space.xxl, paddingBottom: tokens.space.xxl },
   footerColumnsCompact: { flexDirection: 'column', gap: tokens.space.xl, paddingBottom: tokens.space.xl },
   footerIntro: { flex: 1.3, minWidth: 0 }, footerNavigation: { flex: 0.7 }, footerContact: { flex: 1 },
